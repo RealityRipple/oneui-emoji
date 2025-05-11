@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8" />
+  <script>
+   const eVer = '16.0';
+   const pxSz = 112;
+   const fSz = 96;
+   const yOffset = 4;
+
+   async function init()
+   {
+    const eList = await loadList();
+    if (!eList)
+     return false;
+    const canvas = document.createElement('canvas');
+    canvas.width = pxSz;
+    canvas.height = pxSz;
+    const context = canvas.getContext('2d');
+    const f = new FontFace('SamsungColorEmoji', 'url(OneUI.ttf)');
+    await f.load();
+    if (f.status !== 'loaded')
+     return false;
+    document.fonts.add(f);
+    for (let i = 0; i < eList.length; i++)
+    {
+     const cpS = eList[i].split(' ');
+     let cpI = [];
+     for (let n = 0; n < cpS.length; n++)
+     {
+      cpI.push(parseInt('0x' + cpS[n], 16));
+     }
+     const emoji = String.fromCodePoint(...cpI);
+     context.clearRect(0, 0, canvas.width, canvas.height);
+     context.font = fSz + "px 'SamsungColorEmoji'";
+     context.textAlign = 'center';
+     context.textBaseline = 'middle';
+     if (Math.floor(context.measureText(emoji).width) > 112)
+     {
+      //emoji is doubled up due to bugs with E15.1 zwj sequences (namely Broken Chain)
+      const xOffset = -1 * pxSz;
+      context.fillText(emoji + emoji, canvas.width / 2 + xOffset, canvas.height / 2 + yOffset);
+     }
+     else
+     {
+      context.fillText(emoji, canvas.width / 2, canvas.height / 2 + yOffset);
+     }
+     const dataUrl = canvas.toDataURL('image/png');
+     const link = document.createElement('a');
+     link.download = eList[i].toLowerCase().replaceAll(' ', '-') + '.png';
+     link.href = dataUrl;
+     link.click();
+     await _sleep(300);
+    }
+    return true;
+   }
+
+   async function loadList()
+   {
+    //unicode.org does not provide CORS headers, and the emoji-test.txt files seem to be under regularly heavy load anyway
+    const url = 'https://realityripple.com/tmp/emoji/' + eVer + '/emoji-test.txt';
+    const r = await _httpRequest(url);
+    if (!r.success)
+     return false;
+    const aRet = r.data.split('\n');
+    const idL = [];
+    for (let i = 0; i < aRet.length; i++)
+    {
+     if (aRet[i].length === 0)
+      continue;
+     if (aRet[i].slice(0, 1) === '#')
+      continue;
+     if (!aRet[i].includes('; fully-qualified'))
+      continue;
+     let aMsg = aRet[i];
+     aMsg = aMsg.slice(0, aMsg.indexOf(';'));
+     aMsg = aMsg.trim();
+     idL.push(aMsg);
+    }
+    return idL;
+   }
+
+   function _sleep(ms)
+   {
+    return new Promise(
+     function(resolve)
+     {
+      let n = 0;
+      function _next(ts)
+      {
+       if (n === 0)
+       {
+        n = ts;
+        window.requestAnimationFrame(_next);
+        return;
+       }
+       else if (ts - n < ms)
+       {
+        window.requestAnimationFrame(_next);
+        return;
+       }
+       resolve(true);
+      }
+      window.requestAnimationFrame(_next);
+     }
+    );
+   }
+
+   function _httpRequest(url)
+   {
+    return new Promise(
+     function(resolve)
+     {
+      const x = new XMLHttpRequest();
+      x.open('GET', url);
+      x.timeout = 10000;
+      x.onreadystatechange = function()
+      {
+       if (x.readyState !== 4)
+        return;
+       x.ontimeout = null;
+       x.onreadystatechange = null;
+       resolve({code: x.status, data: x.responseText, get success(){return Math.floor(this.code / 100) === 2;}});
+      };
+      x.ontimeout = function()
+      {
+       x.ontimeout = null;
+       x.onreadystatechange = null;
+       resolve({code: 408, data: 'Connection Timed Out', get success(){return false;}});
+      };
+      x.send();
+     }
+    );
+   }
+
+   window.addEventListener('load', init);
+  </script>
+ </head>
+</html>
