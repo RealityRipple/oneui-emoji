@@ -17,6 +17,6 @@ I was unable to find a Node package that could correctly parse SamsungColorEmoji
 
 Due to an issue with the canvas element in chromium browsers, some emojis, particularly those with ZWJs from Unicode 15.1 onward occasionally fail to render correctly. The kludge to resolve this was to render the same emoji twice, with no space between, and then ignore the first of the two Emojis, as only the second one renders correctly.  
 
-Acquiring the Samsung OneUI emoji font can be difficult - the current copy in use by this repository is from https://github.com/caffeinepyroxene/oneui-emojis - which is OneUI 7 from January of 2025.  
+Acquiring the Samsung OneUI emoji font can be difficult - the current copy in use by this repository is from https://gitgud.io/Van-Firmware-Dumps/samsung/a36xq - which is OneUI 7 from May of 2025.  
 
 OneUI does not have the "eye in speech bubble" emoji, also known as the "I Am a Witness" or "see something, say something" icon, `1f441-fe0f-200d-1f5e8-fe0f`. It was last included in Samsung Experience 9, circa 2018. Oddly, the speech bubble emoji is still shaped like an eye, but the two emojis do not exactly overlap cleanly. I've made a simple mockup PNG of this emoji from the two existing OneUI emojis, which may be used in place of the missing glyph.
