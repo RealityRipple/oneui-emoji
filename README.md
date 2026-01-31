@@ -4,13 +4,6 @@ A JS script to extract Emojis in 112x112 pixel PNG format from SamsungColorEmoji
 ## Requirements
  - Building the image list with `index.html` requires a chromium-based web browser.
  - Due to CORS, the `emoji-test.txt` file is pulled from RealityRipple Software instead of unicode.org.
- - Before running the script, please change the following settings in your browser:
-   - `Downloads`:
-     - `Location`: should be the path you wish to save the PNG files, such as `./png/112`.
-     - `Ask where to save each file before downloading`: **off** as there are nearly 4000 files to save.
-     - `Show downloads when they're done`: **off** to reduce load delay.
-   - `Privacy and security` -> `Permissions` -> `Additional permissions` -> `Automatic downloads`:
-     - `Allowed to automatically download multiple files`: add a new site with the URL `file:///*`.
 
 ## Additional Notes
 I was unable to find a Node package that could correctly parse SamsungColorEmoji, or load it into Node's `canvas` implementation. This drastically reduces the automatability of this project.
