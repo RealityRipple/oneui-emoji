@@ -50,7 +50,7 @@
      link.download = eList[i].toLowerCase().replaceAll(' ', '-') + '.png';
      link.href = dataUrl;
      link.click();
-     await _sleep(300);
+     await _fPause();
     }
     return true;
    }
@@ -80,21 +80,21 @@
     return idL;
    }
 
-   function _sleep(ms)
+   function _fPause(frames = 1)
    {
     return new Promise(
      function(resolve)
      {
-      let n = 0;
-      function _next(ts)
+      if (frames < 1)
       {
-       if (n === 0)
-       {
-        n = ts;
-        window.requestAnimationFrame(_next);
-        return;
-       }
-       else if (ts - n < ms)
+       resolve(false);
+       return;
+      }
+      let n = 0;
+      function _next()
+      {
+       n++;
+       if (n < frames)
        {
         window.requestAnimationFrame(_next);
         return;
