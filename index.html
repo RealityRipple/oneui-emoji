@@ -7,21 +7,45 @@
    const pxSz = 112;
    const fSz = 96;
    const yOffset = 4;
+   let eList = false;
 
    async function init()
    {
-    const eList = await loadList();
+    document.body.innerHTML = '<div>Reading ' + eVer + '/emoji-test.txt...</div>';
+    eList = await loadList();
     if (!eList)
+    {
+     document.body.innerHTML = '<div>Error Reading ' + eVer + '/emoji-test.txt!</div>';
      return false;
+    }
+    document.body.innerHTML = '<div>Loading OneUI.ttf...</div>';
+    const f = new FontFace('SamsungColorEmoji', 'url(OneUI.ttf)');
+    await f.load();
+    if (f.status !== 'loaded')
+    {
+     document.body.innerHTML = '<div>Error Loading OneUI.ttf!</div>';
+     return false;
+    }
+    document.fonts.add(f);
+    document.body.innerHTML = '';
+    const cmdSave = document.createElement('button');
+    cmdSave.textContent = 'Export Emoji';
+    cmdSave.addEventListener('click', save);
+    document.body.appendChild(cmdSave);
+    return true;
+   }
+
+   async function save()
+   {
+    document.body.innerHTML = '<div>Exporting ' + eList.length + ' Emoji to PNG Files...</div><br>';
+    const pbProgress = document.createElement('progress');
+    pbProgress.max = eList.length;
+    pbProgress.value = 0;
+    document.body.appendChild(pbProgress);
     const canvas = document.createElement('canvas');
     canvas.width = pxSz;
     canvas.height = pxSz;
     const context = canvas.getContext('2d');
-    const f = new FontFace('SamsungColorEmoji', 'url(OneUI.ttf)');
-    await f.load();
-    if (f.status !== 'loaded')
-     return false;
-    document.fonts.add(f);
     for (let i = 0; i < eList.length; i++)
     {
      const cpS = eList[i].split(' ');
@@ -50,8 +74,10 @@
      link.download = eList[i].toLowerCase().replaceAll(' ', '-') + '.png';
      link.href = dataUrl;
      link.click();
+     pbProgress.value = i + 1;
      await _fPause();
     }
+    document.body.innerHTML = '<div>Export Finished!</div>';
     return true;
    }
 
